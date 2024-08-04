@@ -40,4 +40,9 @@ public class GlobalExceptionHandler {
         errorResponse.setPath(request.getRequestURI());
         return errorResponse;
     }
+    @ExceptionHandler(ProtectionStillActiveException.class)
+    public ResponseEntity<ErrorResponse> ProtectionStillActiveExceptionHandler(ProtectionStillActiveException exception, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorResponse(400, exception, request));
+    }
 }

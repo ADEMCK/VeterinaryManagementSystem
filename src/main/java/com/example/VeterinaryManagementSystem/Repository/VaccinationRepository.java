@@ -16,4 +16,7 @@ public interface VaccinationRepository extends JpaRepository<Vaccination, Long> 
     Page<Vaccination> findByAnimalId(Long id, Pageable pageable);
 
     Page<Vaccination> findByProtectionFinishDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    List<Vaccination> findByAnimalId(Long animalId);
+
 }

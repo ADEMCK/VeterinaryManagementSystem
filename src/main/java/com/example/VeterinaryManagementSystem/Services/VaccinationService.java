@@ -1,5 +1,7 @@
 package com.example.VeterinaryManagementSystem.Services;
 
+import com.example.VeterinaryManagementSystem.Repository.AnimalRepository;
+import com.example.VeterinaryManagementSystem.Repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ public class VaccinationService {
     private final VaccinationRepository vaccinationRepository;
     private final ReportService reportService;
     private final ModelMapper modelMapper;
+    private  final AnimalRepository animalRepository;
 
     public Page<VaccinationResponse> findAllVaccinations(int pageNumber, int pageSize) {
 
@@ -62,6 +65,7 @@ public class VaccinationService {
         }
 
         Vaccination newVaccination = modelMapper.map(vaccinationRequest, Vaccination.class);
+        newVaccination.setAnimal(animalRepository.findById(vaccinationRequest.getAnimalId()).orElseThrow());
         //newVaccination.setReport(reportService.findReportById(vaccinationRequest.getReportId()));
         return modelMapper.map(vaccinationRepository.save(newVaccination), VaccinationResponse.class);
     }
@@ -97,4 +101,9 @@ public class VaccinationService {
             return "Vaccine deleted.";
         }
     }
+
+    public List<Vaccination> getVaccinationsByAnimal(Long animalId) {
+        return vaccinationRepository.findByAnimalId(animalId);
+    }
+
 }

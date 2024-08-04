@@ -1,5 +1,8 @@
 package com.example.VeterinaryManagementSystem.Services;
 
+import com.example.VeterinaryManagementSystem.Repository.AnimalRepository;
+import com.example.VeterinaryManagementSystem.Repository.CustomerRepository;
+import com.example.VeterinaryManagementSystem.Repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,9 @@ import com.example.VeterinaryManagementSystem.Exception.EntityNotFoundException;
 import com.example.VeterinaryManagementSystem.Repository.AppointmentRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +32,8 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final WorkDayService workDayService;
     private final ModelMapper modelMapper;
+    private  final AnimalRepository animalRepository;
+    private  final DoctorRepository doctorRepository;
 
     public Page<AppointmentResponse> findAllAppointments(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -83,8 +91,17 @@ public class AppointmentService {
         if (existAppointmentWithDateAndDoctorId.isPresent()) {
             throw new DoctorAppointmentConflictException(appointmentRequest.getAppointmentDate().toLocalDate());
         }
-
+        LocalDateTime atStart = appointmentRequest.getAppointmentDate().truncatedTo(ChronoUnit.HOURS);
+        LocalDateTime atEnd = appointmentRequest.getAppointmentDate().truncatedTo(ChronoUnit.HOURS).plus(1,ChronoUnit.HOURS);
+        Pageable pageable = PageRequest.of(1, 50);
+        Page<Appointment> byDoctorIdAndAppointmentDateBetween = appointmentRepository.findByDoctorIdAndAppointmentDateBetween(appointmentRequest.getDoctor_id(), atStart, atEnd, pageable);
+        if(!byDoctorIdAndAppointmentDateBetween.isEmpty()){
+            throw new DoctorAppointmentConflictException(appointmentRequest.getAppointmentDate().toLocalDate());
+        }
         Appointment newAppointment = modelMapper.map(appointmentRequest, Appointment.class);
+        newAppointment.setAnimal(animalRepository.findById(appointmentRequest.getAnimal_id()).orElseThrow());
+        newAppointment.setDoctor(doctorRepository.findById(appointmentRequest.getDoctor_id()).orElseThrow());
+
         return modelMapper.map(appointmentRepository.save(newAppointment), AppointmentResponse.class);
     }
 
@@ -132,4 +149,15 @@ public class AppointmentService {
             return "Appointment deleted.";
         }
     }
+    /* public boolean isDoctorAvailable(Long doctorId, LocalDateTime appointmentTime) {
+        List<Appointment> appointments = appointmentRepository.findByDoctorIdAndAppointmentTime(doctorId, appointmentTime);
+        return appointments.isEmpty();
+    }
+    public List<Appointment> getAppointmentsByDateRangeAndAnimal(LocalDate startDate, LocalDate endDate, Long animalId) {
+        return appointmentRepository.findByDateRangeAndAnimalId(startDate, endDate, animalId);
+    }
+    public List<Appointment> getAppointmentsByDateRangeAndDoctor(LocalDate startDate, LocalDate endDate, Long doctorId) {
+        return appointmentRepository.findByDateRangeAndDoctorId(startDate, endDate, doctorId);
+    } */
+
 }

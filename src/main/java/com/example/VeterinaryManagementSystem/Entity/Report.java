@@ -24,10 +24,6 @@ public class Report {
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.REMOVE)
-    @JsonIgnore
-    private List<Vaccination> vaccinationList;
-
     public void setAppointment(Appointment appointment) {
         this.appointment = appointment;
     }

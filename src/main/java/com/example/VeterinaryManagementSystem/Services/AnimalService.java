@@ -57,7 +57,9 @@ public class AnimalService {
         }
 
         Animal newAnimal = modelMapper.map(animalRequest, Animal.class);
-        newAnimal.setCustomer(customerFromDb);
+        newAnimal.setId(null);
+
+        //newAnimal.setCustomer(customerFromDb);
 
         return modelMapper.map(animalRepository.save(newAnimal), AnimalResponse.class);
     }

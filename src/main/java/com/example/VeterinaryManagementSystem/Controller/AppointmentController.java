@@ -68,4 +68,5 @@ public class AppointmentController {
     public ResponseEntity<String> deleteAppointment(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(appointmentService.deleteAppointment(id));
     }
+
 }

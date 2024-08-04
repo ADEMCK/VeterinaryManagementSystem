@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.example.VeterinaryManagementSystem.Entity.Appointment;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,4 +21,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findByDoctorIdAndAppointmentDateBetween(Long doctorId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     Page<Appointment> findByAnimalIdAndAppointmentDateBetween(Long animalId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
 }
